@@ -3,7 +3,7 @@
 This package contains a number of solr analysis filters to transform library
 data at index and/or query time in a solr index.
 
-To use, just place the [`.jar` file](dist/umich_solr_library_filters_jar/umich_solr_library_filters.jar)
+To use, just place the [`.jar` file](https://github.com/billdueber/umich_solr_library_filters/tree/master/dist/umich_solr_library_filters_jar)
 into a place where solr will find it, and
 place the appropriate class in your analysis chain, as shown below.
 
