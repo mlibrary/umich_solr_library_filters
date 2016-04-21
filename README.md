@@ -3,11 +3,13 @@
 This package contains a number of solr analysis filters to transform library
 data at index and/or query time in a solr index.
 
-To use, just place the [`.jar` file](https://github.com/billdueber/umich_solr_library_filters/tree/master/dist/umich_solr_library_filters_jar)
+## Using and/or Building
+
+To use the [provided `.jar` file](https://github.com/billdueber/umich_solr_library_filters/tree/master/dist/umich_solr_library_filters_jar), just stick it 
 into a place where solr will find it, and
 place the appropriate class in your analysis chain, as shown below.
 
-This library is built on/against solr 4.x.
+The jarfile provided is built on/against solr 6.x. To build it youself, simply check out this repo inside of the `solr/contrib/` directory and run (from `solr/`) `ant dist-contrib`. You'll still need to copy the jarfile to wherever you need it.
 
 ## LCCN Normalizer
 
