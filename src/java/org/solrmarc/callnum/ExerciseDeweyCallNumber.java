@@ -7,7 +7,7 @@ import java.util.regex.Matcher;
  * Exercise the {@code DeweyCallNumber} class from the command line.
  * Illustrates parsing a shelf key construction.
  * Useful for debugging during development.
- * <p/>
+ * 
  * <p>From the root of the solrmarc distribution:
  * <p>{@code java -cp lib/solrmarc/build org.solrmarc.callnum.ExerciseDeweyCallNumber}
  *

@@ -30,7 +30,7 @@ public class Utils {
 
     /**
      * Writes a numerically-sortable version of the input to the buffer.
-     * <p/>
+     * 
      * The rules for production the numerically sortable sequence are:
      * <ul>
      * <li>Letters are translated to upper case</li>
@@ -38,11 +38,11 @@ public class Utils {
      * <li>any other character is a word separator</li>
      * <li>sequences of word separators are reduced to a single space</li>
      * </ul>
-     * <p/>
+     * 
      * <p>Prepending a sequence of digits with the number of digits ensures that they will easily sort numerically:
      * sort keys for 2-digits nubmers start with 2, sort keys for 3-digit numbers start with 3, etc.
      * Suggested by John Craig at Code4Lib in Ashville, NC.
-     * <p/>
+     * 
      * <p>Implemented as a finite state machine, modeled by <code>switch</code> statements.
      *
      * @param buf   buffer for appending sortable version of the input

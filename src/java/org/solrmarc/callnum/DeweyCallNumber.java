@@ -21,11 +21,11 @@ import java.util.regex.Pattern;
 
 /**
  * Implements a call number class for Dewey call numbers.
- * <p/>
+ * 
  * <p>Example call number: {@code 322.44 .F816 V.1 1974}
- * <p/>
+ * 
  * <p>As unpacked into internal fields:
- * <p/>
+ * 
  * <table summary="call number parsed into fields">
  * <tr><th>{@code classification}</th><td>322.44</td></tr>
  * <tr><th>{@code classDigits}</th><td>322</td></tr>
@@ -33,15 +33,15 @@ import java.util.regex.Pattern;
  * <tr><th>{@code cutter}</th><td>F816</td></tr>
  * <tr><th>{@code suffix}</th><td>V.1 1974</td></tr>
  * </table>
- * <p/>
+ * 
  * <p>If the call number doesn't look like Dewey (no starting digit) the entire call number
  * goes into {@code suffix}.
- * <p/>
+ * 
  * <p>Shelf keys:
- * <p/>
+ * 
  * <p>With computing shelf keys, we want a string which represents the number but can easily be sorted.
  * The main issues is sequences of digits: which ones sort numerically, and how to arrange that.
- * <p/>
+ * 
  * <p>The shelf key algorithm is basically:
  * <ol>
  * <li>trim leading zeros from {@code classDigits} and prepend with the number of remaining digits</li>
@@ -52,7 +52,7 @@ import java.util.regex.Pattern;
  * for details see {@link Utils#appendNumericallySortable Utils#appendNumericallySortable}
  * </li>
  * </ol>
- * <p/>
+ * 
  * <p>Using the above example call number:
  * <table summary="constructing the shelf key">
  * <thead>
@@ -66,12 +66,12 @@ import java.util.regex.Pattern;
  * <tr><th>{@code suffix}</th><td>{@code V.1 1974}</td><td>{@code V 11 41974}</td><td></td></tr>
  * </tbody>
  * </table>
- * <p/>
+ * 
  * <p>The resulting shelf key is {@code 3322.44 .F816 V.1 1974}.
- * <p/>
+ * 
  * <p>Run the {@code ExerciseDeweyCallNumber} class from the command line to print out a
  * number of examples of both parsed call numbers and shelf keys.
- * <p/>
+ * 
  * <p>Based in part on Naomi Dushay's {@code CallNumUtils}.
  *
  * @author Tod Olson, University of Chicago
@@ -96,7 +96,7 @@ public class DeweyCallNumber extends AbstractCallNumber {
 
     /**
      * Separates the class from the rest of a call number.
-     * <p/>
+     * 
      * Match group 1 contains the classification.
      * Match group 2 contains the class digits (before the decimal).
      * Match group 3 contains the decimal portion of the class number, including the decimal point.
@@ -106,11 +106,11 @@ public class DeweyCallNumber extends AbstractCallNumber {
 
     /**
      * Regular expression for Dewey cutter.
-     * <p/>
+     * 
      * Dewey cutters start with a letter, followed by a one to three digit
      * number. The number may be followed immediately (i.e. without space) by
      * letters, or followed first by a space and then letters.
-     * <p/>
+     * 
      * NB: {@code CallNumUtils} did not implement the "space letters" part of the cutter,
      * similarly, this class defers that detail.
      * Challenging to do while leaving volumes and similar suffixes in tact.
@@ -123,7 +123,7 @@ public class DeweyCallNumber extends AbstractCallNumber {
 
     /**
      * Constructs a call number object from the given string.
-     * <p/>
+     * 
      * The constructor parses the <code>callNumber</code> argument as part of instantiating the object.
      *
      * @param callNumber call number to parse
@@ -173,7 +173,7 @@ public class DeweyCallNumber extends AbstractCallNumber {
      * <li><code>cutter</code></li>
      * <li><code>cutterSuffix</code></li>
      * </ul>
-     * <p/>
+     * 
      * <p>Supplies any missing leading zeroes for {@code classification} and {@code classDigits}.
      */
 
@@ -215,7 +215,7 @@ public class DeweyCallNumber extends AbstractCallNumber {
 
     /**
      * Returns a normal form of the classification string.
-     * <p/>
+     * 
      * <p>Supplies any missing leading zeroes.
      */
     public String getClassificationNormalized() {
