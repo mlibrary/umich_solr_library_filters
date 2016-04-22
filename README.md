@@ -56,8 +56,9 @@ so if you want to be able to look for random strings that come out of your
 ## LC Shelf Key
 
 This is a simple wrapper around the [solrmarc code for generating a sortable
-shelfkey from an LC Classification Number](https://code.google.com/p/solrmarc/source/browse/trunk/lib/solrmarc/src/org/solrmarc/callnum/LCCallNumber.java).
-You can see examples in the original code; I'm just wrapping it up as a filter.
+shelfkey from an LC Classification Number](https://code.google.com/p/solrmarc/source/browse/trunk/lib/solrmarc/src/org/solrmarc/callnum/LCCallNumber.java). It's useful as a sort key and (at least a bit) for string matching, although that last part is notoriously iffy.
+
+You can see the original solrmarc-centric examples in the  code; I'm just wrapping it up as a filter.
 
 ```xml
 	<fieldType name="lc_callnumber_shelfkey" class="solr.TextField">
