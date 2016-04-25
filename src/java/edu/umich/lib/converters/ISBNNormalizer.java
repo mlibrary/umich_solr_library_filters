@@ -21,7 +21,7 @@ public class ISBNNormalizer {
             Pattern.compile("^.*?(\\d[\\d\\-]{8,}[Xx]?)(?:\\D|\\Z).*$");
 
     public static final Pattern ISBN13Pat =
-            Pattern.compile("^.*?(978[\\d\\-]{10,})(?:\\D|\\Z).*$");
+            Pattern.compile("^.*?(97[89][\\d\\-]{10,})(?:\\D|\\Z).*$");
 
 
     /**

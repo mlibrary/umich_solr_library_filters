@@ -24,13 +24,17 @@ public class ISBNNormalizerTest {
         String expResult = "9780802088512";
         String result = ISBNNormalizer.normalize(isbn);
         assertEquals(expResult, result);
-        assertEquals(expResult, ISBNNormalizer.normalize("9780802088512"));
-        assertEquals(expResult, ISBNNormalizer.normalize("978-080-208-8-51-2  "));
-        assertEquals(expResult, ISBNNormalizer.normalize("080-2088-511"));
-        assertEquals(expResult, ISBNNormalizer.normalize("ISBN: 0802088511"));
-        assertEquals(expResult, ISBNNormalizer.normalize("ISBN: 080-208-8511 (pb)"));
-        assertEquals(expResult, ISBNNormalizer.normalize("Long ISBN: 978-080-208-8-51-2  "));
-
+        assertEquals("Raw 13", expResult, ISBNNormalizer.normalize("9780802088512"));
+        assertEquals("With dashes", expResult, ISBNNormalizer.normalize("978-080-208-8-51-2  "));
+        assertEquals("From 10-char", expResult, ISBNNormalizer.normalize("080-2088-511"));
+        assertEquals("with leading text", expResult, ISBNNormalizer.normalize("ISBN: 0802088511"));
+        assertEquals("With leading/trailing text", expResult, ISBNNormalizer.normalize("ISBN: 080-208-8511 (pb)"));
+        assertEquals("Very long", expResult, ISBNNormalizer.normalize("Long ISBN: 978-080-208-8-51-2  "));
+    }
+    
+    @org.junit.Test
+    public void testProblemFromPrinceton() throws Exception {
+      assertEquals("Problem from https://github.com/pulibrary/pul_solr/pull/3", "9791032000373", ISBNNormalizer.normalize("9791032000373"));
     }
 
     @org.junit.Test

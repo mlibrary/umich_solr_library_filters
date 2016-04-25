@@ -70,3 +70,7 @@ You can see the original solrmarc-centric examples in the  code; I'm just wrappi
 
 ```
 
+## Changes
+* **2016.04.25** Update what is clearly very old code to deal with those new-fangled 979- ISBN13s. 
+
+
