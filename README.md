@@ -42,13 +42,17 @@ Anything that doesn't seem to contain an ISBN will not index anything at all,
 so if you want to be able to look for random strings that come out of your
 `020` fields, you'll need to use an additional field for that.
 
+Note how we limit to strings of exactly length 13, since that's all we should get.
+
 ```xml
 <!-- In this example, allow multiple comma- or semi-colon-separated values -->
 	<fieldType name="isbn" class="solr.TextField">
-		<analyzer>
-	        <tokenizer class="solr.PatternTokenizerFactory" pattern="[;,]\s*" />
-			<filter class="edu.umich.lib.solr_filters.ISBNNormalizerFilterFactory"/>
-		</analyzer>
+	  <analyzer>
+	    <tokenizer class="solr.PatternTokenizerFactory" pattern="[;,]\s*" />
+	    <filter class="edu.umich.lib.solr_filters.ISBNNormalizerFilterFactory"/>
+	    <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
+            <filter class="solr.LengthFilterFactory" min="13" max="13" />
+          </analyzer>
 	</fieldType>
 
 ```
