@@ -8,7 +8,7 @@ For an example of a configuration that uses these, check out
 
 ## Using and/or Building
 
-To use the .jar in releases, just stick it 
+To use the .jar in [releases](https://github.com/mlibrary/umich_solr_library_filters/releases), just stick it 
 into a place where solr will find it, and
 create appropriate `fieldType` definitions, as shown below.
 
