@@ -65,7 +65,7 @@ shelfkey from an LC Classification Number](https://code.google.com/p/solrmarc/so
 You can see the original solrmarc-centric examples in the  code; I'm just wrapping it up as a filter.
 
 ```xml
-	<fieldType name="lc_callnumber_shelfkey" class="solr.TextField">
+	<fieldType name="lc_callnumber_sortable" class="solr.TextField">
 		<analyzer>
 			<tokenizer class="solr.KeywordTokenizerFactory"/>
 			<filter class="edu.umich.lib.solr_filters.LCCallNumberShelfKeyFilterFactory"/>
@@ -73,6 +73,19 @@ You can see the original solrmarc-centric examples in the  code; I'm just wrappi
 	</fieldType>
 
 ```
+
+## LC Prefix search
+
+This is must more iffy, but does a decent job of allowing you to search by the first parts of a callnumber, and is pretty forgiving of how that search is formatted.
+
+```xml
+<fieldType name="lc_callnumber_searchable" class="solr.TextField"  docValues="false">
+   <analyzer>
+     <tokenizer class="solr.KeywordTokenizerFactory"/>
+     <filter class="edu.umich.lib.solr.analysis.LCCallNumberNormalizerFilterFactory"/>
+   </analyzer>
+</fieldType>
+```     
 
 ## Changes
 * **2016.04.25** Update what is clearly very old code to deal with those new-fangled 979- ISBN13s. 
