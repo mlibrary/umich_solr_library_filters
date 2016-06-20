@@ -3,11 +3,14 @@
 This package contains a number of solr analysis filters to transform library
 data at index and/or query time in a solr index.
 
+For an example of a configuration that uses these, check out
+[my solr6 config](https://github.com/billdueber/solr6_test_conf).
+
 ## Using and/or Building
 
-To use the [provided `.jar` file](https://github.com/billdueber/umich_solr_library_filters/tree/master/dist/), just stick it 
+To use the .jar in releases, just stick it 
 into a place where solr will find it, and
-create an appropriate `fieldType` definition, as shown below.
+create appropriate `fieldType` definitions, as shown below.
 
 The jarfile provided is built on/against solr 6.x. To build it youself, simply check out this repo inside of the `solr/contrib/` directory and run (from `solr/`) `ant dist-contrib`. You'll still need to copy the jarfile to wherever you need it.
 
