@@ -3,6 +3,11 @@
 This package contains a number of solr analysis filters to transform library
 data at index and/or query time in a solr index.
 
+By putting transformations
+into your solr install, you can guarantee that the same changes happen at both index and query time, so the same input will
+always match. Otherwise, you're stuck trying to make sure you're using identical normailzation routines in your indexing code
+and your search-collecting application code, which can be problematic.
+
 For an example of a configuration that uses these, check out
 [my solr6 config](https://github.com/billdueber/solr6_test_conf).
 
