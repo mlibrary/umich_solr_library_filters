@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package edu.umich.lib.solr.analysis;
+package edu.umich.lib.solr_filters;
 import java.util.Map;
 import org.apache.lucene.analysis.util.TokenFilterFactory;
 import org.apache.lucene.analysis.TokenStream;

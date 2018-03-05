@@ -2,12 +2,11 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package edu.umich.lib.solr.analysis;
+package edu.umich.lib.solr_filters;
 
 import edu.umich.lib.normalizers.LCCallNumberNormalizer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.TokenFilter;
-import org.apache.lucene.analysis.Token;
 import org.apache.lucene.analysis.TokenStream;
 import java.io.IOException;
 

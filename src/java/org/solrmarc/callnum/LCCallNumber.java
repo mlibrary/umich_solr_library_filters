@@ -246,7 +246,6 @@ public class LCCallNumber extends AbstractCallNumber {
     /**
      * This parse can be used in conjunction with the empty constructor
      */
-    @Override
     public void parse(String call) {
         init();
         this.rawCallNum = call;
