@@ -2,7 +2,7 @@
  *
  * @author dueberb
  */
-package edu.umich.lib.normalizers;
+package edu.umich.lib.converters;
 
 import java.util.HashMap;
 
