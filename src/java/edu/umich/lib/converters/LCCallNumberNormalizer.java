@@ -2,12 +2,13 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package edu.umich.lib.normalizers;
+package edu.umich.lib.converters;
 
 import java.util.regex.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
+
 
 /**
  *
@@ -27,7 +28,7 @@ public class LCCallNumberNormalizer {
     public static final String BOTTOMDIGIT = "9";
     public static final String BOTTOMDIGITS = "999999999999999999999";
     private static Pattern lcpattern = Pattern.compile(
-        "^ \\s* (?:VIDEO-D)? (?:DVD-ROM)? (?:CD-ROM)? (?:TAPE-C)? \\s* ([A-Z]{1,3}) \\s* (?: (\\d{1,4}) (?:\\s*?\\.\\s*?(\\d{1,3}))? )? \\s* (?: \\.? \\s* ([A-Z]) \\s* (\\d{1,3} | \\Z)? )? \\s* (?: \\.? \\s* ([A-Z]) \\s* (\\d{1,3} | \\Z)? )? \\s* (?: \\.? \\s* ([A-Z]) \\s* (\\d{1,3} | \\Z)? )? (\\s\\s*.+?)? \\s*$",
+        "^ \\s* (?:VIDEO-D)? (?:DVD-ROM)? (?:CD-ROM)? (?:TAPE-C)? \\s* ([A-Z]{1,3}) \\s* (?: (\\d{1,6}) (?:\\s*?\\.\\s*?(\\d{1,6}))? )? \\s* (?: \\.? \\s* ([A-Z]) \\s* ((?: \\d{1,6} (?:\\.\\s*?(\\d{1,6}))) | \\Z)? )? \\s* (?: \\.? \\s* ([A-Z]) \\s* (\\d{1,6} | \\Z)? )? \\s* (?: \\.? \\s* ([A-Z]) \\s* (\\d{1,6} | \\Z)? )? (\\s\\s*.+?)? \\s*$",
         Pattern.COMMENTS);
     private static Pattern longAlphaPattern = Pattern.compile("^[A-Z]{4,}.*$");
 
@@ -49,12 +50,7 @@ public class LCCallNumberNormalizer {
         s = s.toUpperCase();
 
         Matcher m = lcpattern.matcher(s);
-        if (m.matches()) {
-            return true;
-        }
-        else {
-            return false;
-        }
+        return m.matches();
     }
 
     public static String normalize(String s) {
@@ -150,7 +146,7 @@ public class LCCallNumberNormalizer {
         //             //  System.out.println(s + "has too long a decimal");
         //             throw new MalformedCallNumberException();
         //         }
-        
+
 
         // Normalize each part and push them onto a stack
 
@@ -176,13 +172,13 @@ public class LCCallNumberNormalizer {
         ArrayList<String> topnorm = new ArrayList<String>(10);
         topnorm.add(alpha + TOPALPHA.substring(0, 3 - alpha.length()));
         topnorm.add(num);
-        topnorm.add(dec == null ? "000" : dec + TOPDIGITS.substring(0, 3 - dec.length()));
+        topnorm.add(dec == null ? "0000" : dec + TOPDIGITS.substring(0, 6 - dec.length()));
         topnorm.add(c1alpha == null ? TOPSPACE : c1alpha);
-        topnorm.add(c1num == null ? "000" : c1num + TOPDIGITS.substring(0, 3 - c1num.length()));
+        topnorm.add(c1num == null ? "0000" : c1num + TOPDIGITS.substring(0, 6 - c1num.length()));
         topnorm.add(c2alpha == null ? TOPSPACE : c2alpha);
-        topnorm.add(c2num == null ? "000" : c2num + TOPDIGITS.substring(0, 3 - c2num.length()));
+        topnorm.add(c2num == null ? "0000" : c2num + TOPDIGITS.substring(0, 6 - c2num.length()));
         topnorm.add(c3alpha == null ? TOPSPACE : c3alpha);
-        topnorm.add(c3num == null ? "000" : c3num + TOPDIGITS.substring(0, 3 - c3num.length()));
+        topnorm.add(c3num == null ? "0000" : c3num + TOPDIGITS.substring(0, 6 - c3num.length()));
         topnorm.add(enorm);
 
 
@@ -196,13 +192,13 @@ public class LCCallNumberNormalizer {
         if (rangeEnd) {
             bottomnorm.add(alpha + TOPALPHA.substring(0, 3 - alpha.length()));
             bottomnorm.add(bottomnum);
-            bottomnorm.add(dec == null ? "999" : dec + BOTTOMDIGITS.substring(0, 3 - dec.length()));
+            bottomnorm.add(dec == null ? "9999" : dec + BOTTOMDIGITS.substring(0, 6 - dec.length()));
             bottomnorm.add(c1alpha == null ? BOTTOMSPACE : c1alpha);
-            bottomnorm.add(c1num == null ? "999" : c1num + BOTTOMDIGITS.substring(0, 3 - c1num.length()));
+            bottomnorm.add(c1num == null ? "9999" : c1num + BOTTOMDIGITS.substring(0, 6 - c1num.length()));
             bottomnorm.add(c2alpha == null ? BOTTOMSPACE : c2alpha);
-            bottomnorm.add(c2num == null ? "999" : c2num + BOTTOMDIGITS.substring(0, 3 - c2num.length()));
+            bottomnorm.add(c2num == null ? "9999" : c2num + BOTTOMDIGITS.substring(0, 6 - c2num.length()));
             bottomnorm.add(c3alpha == null ? BOTTOMSPACE : c3alpha);
-            bottomnorm.add(c3num == null ? "999" : c3num + BOTTOMDIGITS.substring(0, 3 - c3num.length()));
+            bottomnorm.add(c3num == null ? "9999" : c3num + BOTTOMDIGITS.substring(0, 6 - c3num.length()));
             bottomnorm.add(enorm);
         }
 
@@ -273,40 +269,4 @@ public class LCCallNumberNormalizer {
         return "Something went horribly wrong\n";
     }
 
-    public static String toLongInt(String callno) {
-        LCCallNumberNormalizerIntmap intmap = LCCallNumberNormalizerIntmap.getInstance();
-        try {
-            String n = normalize(callno, false, true);
-        }
-        catch (MalformedCallNumberException e) {
-            return MINNUM.toString();
-        }
-
-
-        String n = normalizeFullLength(callno);
-
-        // if n = callno, well, something is probably wrong. That would mean that a full-length
-        // normalization is exactly the same as the input, which is hard to believe.
-
-        // Get the first 18 characters, up through the second cutter's first two digits
-        String alpha = n.substring(0, 3).toLowerCase().replace(TOPSPACE, "");
-        String rest = n.substring(3, 17); // through the second cutter
-//        System.out.println(callno + " / '" + alpha + "' | " + "'" +  rest + "'");
-
-        String rv = intmap.get(alpha);
-        if (rv == null) {
-            return MINNUM.toString();
-        }
-//        System.out.print(rv + "\n  ");
-        for (int i = 0; i < rest.length(); i++) {
-            rv += intmap.get(String.valueOf(rest.charAt(i)));
-//            System.out.print(intmap.get(String.valueOf(rest.charAt(i))));
-        }
-//        System.out.println();
-        Long rvlong = new Long(rv);
-        rvlong += MINNUM;
-        return Long.toString(rvlong);
-
-
-    }
 }

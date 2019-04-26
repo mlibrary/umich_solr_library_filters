@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package edu.umich.lib.normalizers;
+package edu.umich.lib.converters;
 
 /**
  *
