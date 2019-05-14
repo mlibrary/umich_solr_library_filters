@@ -11,7 +11,6 @@ import java.util.ListIterator;
 
 
 /**
- *
  * @author dueberb
  */
 public class LCCallNumberNormalizer {
@@ -28,8 +27,14 @@ public class LCCallNumberNormalizer {
     public static final String BOTTOMDIGIT = "9";
     public static final String BOTTOMDIGITS = "999999999999999999999";
     private static Pattern lcpattern = Pattern.compile(
-        "^ \\s* (?:VIDEO-D)? (?:DVD-ROM)? (?:CD-ROM)? (?:TAPE-C)? \\s* ([A-Z]{1,3}) \\s* (?: (\\d{1,6}) (?:\\s*?\\.\\s*?(\\d{1,6}))? )? \\s* (?: \\.? \\s* ([A-Z]) \\s* ((?: \\d{1,6} (?:\\.\\s*?(\\d{1,6}))) | \\Z)? )? \\s* (?: \\.? \\s* ([A-Z]) \\s* (\\d{1,6} | \\Z)? )? \\s* (?: \\.? \\s* ([A-Z]) \\s* (\\d{1,6} | \\Z)? )? (\\s\\s*.+?)? \\s*$",
-        Pattern.COMMENTS);
+            "^ \\s* (?:VIDEO-D)? (?:DVD-ROM)? (?:CD-ROM)? (?:TAPE-C)? \\s* " +
+                    "([A-Z]{1,3}) \\s* " +
+                    "(?: (\\d{1,6}) (?:\\.(\\d{1,6}))? )? \\s* " +
+                    "(?: \\.? \\s* ([A-Z]) \\s* (\\d{1,6}) (?:\\.(\\d{1,6}))? )? \\s* " +
+                    "(?: \\.? \\s* ([A-Z]) \\s* (\\d{1,6}))? \\s* " +
+                    "(?: \\.? \\s* ([A-Z]) \\s* (\\d{1,6}))? \\s* " +
+                    "(?:\\s+(.+?))? \\s*$",
+            Pattern.COMMENTS);
     private static Pattern longAlphaPattern = Pattern.compile("^[A-Z]{4,}.*$");
 
     public static String join(List<String> s, String d) {
@@ -56,9 +61,8 @@ public class LCCallNumberNormalizer {
     public static String normalize(String s) {
         try {
             return normalize(s, false, false);
-        }
-        catch (MalformedCallNumberException e) {
-            return s.toUpperCase();
+        } catch (MalformedCallNumberException e) {
+            return s;
         }
 
     }
@@ -67,17 +71,15 @@ public class LCCallNumberNormalizer {
 
         try {
             return normalize(s, false, true);
-        }
-        catch (MalformedCallNumberException e) {
-            return s.toUpperCase();
+        } catch (MalformedCallNumberException e) {
+            return s;
         }
     }
 
     public static String rangeStart(String s) {
         try {
             return normalize(s, false, false);
-        }
-        catch (MalformedCallNumberException e) {
+        } catch (MalformedCallNumberException e) {
             return s.toUpperCase();
         }
     }
@@ -85,8 +87,7 @@ public class LCCallNumberNormalizer {
     public static String rangeEnd(String s) {
         try {
             return normalize(s, false, false) + BOTTOMSPACE;
-        }
-        catch (MalformedCallNumberException e) {
+        } catch (MalformedCallNumberException e) {
             return s.toUpperCase();
         }
     }
@@ -94,14 +95,13 @@ public class LCCallNumberNormalizer {
     public static String rangeEndPadded(String s) {
         try {
             return normalize(s, true, true);
-        }
-        catch (MalformedCallNumberException e) {
+        } catch (MalformedCallNumberException e) {
             return s.toUpperCase();
         }
     }
 
     public static String normalize(String s, Boolean rangeEnd, Boolean padded)
-        throws MalformedCallNumberException {
+            throws MalformedCallNumberException {
         s = s.toUpperCase();
 //        System.out.println(s);
         Matcher m = lcpattern.matcher(s);
@@ -116,11 +116,12 @@ public class LCCallNumberNormalizer {
         String dec = m.group(3);
         String c1alpha = m.group(4);
         String c1num = m.group(5);
-        String c2alpha = m.group(6);
-        String c2num = m.group(7);
-        String c3alpha = m.group(8);
-        String c3num = m.group(9);
-        String extra = m.group(10);
+        String c1decimal = m.group(6);
+        String c2alpha = m.group(7);
+        String c2num = m.group(8);
+        String c3alpha = m.group(9);
+        String c3num = m.group(10);
+        String extra = m.group(11);
 
         // If we don't have at least an alpha and a num, throw it out
         if (alpha == null || num == null) {
@@ -133,11 +134,21 @@ public class LCCallNumberNormalizer {
 
         }
 
+        // Create a normalized version of the "extra" with a leading space
+        String enorm = extra == null ? "" : extra;
+        enorm = enorm.replaceAll("[^A-Z0-9]", " ");
+        enorm = enorm.replaceAll("\\s+", " ");
+        if (enorm.length() > 0) {
+            enorm = " " + enorm;
+        }
+
+
         // Record the originals
-        ArrayList<String> origs = new ArrayList<String>(10);
-        for (int i = 1; i <= 10; i++) {
+        ArrayList<String> origs = new ArrayList<String>(11);
+        for (int i = 1; i <= 11; i++) {
             origs.add(m.group(i));
         }
+
 
         //We have some records that aren't LoC Call Numbers, but start like them,
         //only with three digits in the decimal. Ditch them
@@ -150,31 +161,26 @@ public class LCCallNumberNormalizer {
 
         // Normalize each part and push them onto a stack
 
-        // Create a normalized version of the "extra" with a leading space
-        String enorm = extra == null ? "" : extra;
-        enorm.replaceAll("[^A-Z0-9]", "");
-        if (enorm.length() > 0) {
-            enorm = " " + enorm;
-        }
 
         // Pad the number out to four digits
-        String orignum = num;
-        String bottomnum = num;
-        if (bottomnum == null) {
-            bottomnum = "9999";
-        }
-        else {
-            bottomnum = String.format("%04d", Integer.parseInt(bottomnum));
-        }
+//        String orignum = num;
+//        String bottomnum = num;
+//        if (bottomnum == null) {
+//            bottomnum = "9999";
+//        }
+//        else {
+//            bottomnum = String.format("%04d", Integer.parseInt(bottomnum));
+//        }
         num = num == null || num.equals("") ? "0000" : String.format("%04d", Integer.parseInt(num));
 
 
-        ArrayList<String> topnorm = new ArrayList<String>(10);
+        ArrayList<String> topnorm = new ArrayList<String>(11);
         topnorm.add(alpha + TOPALPHA.substring(0, 3 - alpha.length()));
         topnorm.add(num);
         topnorm.add(dec == null ? "0000" : dec + TOPDIGITS.substring(0, 6 - dec.length()));
         topnorm.add(c1alpha == null ? TOPSPACE : c1alpha);
         topnorm.add(c1num == null ? "0000" : c1num + TOPDIGITS.substring(0, 6 - c1num.length()));
+        topnorm.add(c1decimal == null ? "0000" : c1decimal + TOPDIGITS.substring(0, 6 - c1decimal.length()));
         topnorm.add(c2alpha == null ? TOPSPACE : c2alpha);
         topnorm.add(c2num == null ? "0000" : c2num + TOPDIGITS.substring(0, 6 - c2num.length()));
         topnorm.add(c3alpha == null ? TOPSPACE : c3alpha);
@@ -185,23 +191,23 @@ public class LCCallNumberNormalizer {
         //If we want a normalized, padded top, just return it
         if (padded && !rangeEnd) {
 //            System.out.println(s + "is padded; returning");
+//            return "JUST RETURN IT with enorm = \" + enorm";
             return join(topnorm, JOIN);
         }
 
-        ArrayList<String> bottomnorm = new ArrayList<String>(10);
-        if (rangeEnd) {
-            bottomnorm.add(alpha + TOPALPHA.substring(0, 3 - alpha.length()));
-            bottomnorm.add(bottomnum);
-            bottomnorm.add(dec == null ? "9999" : dec + BOTTOMDIGITS.substring(0, 6 - dec.length()));
-            bottomnorm.add(c1alpha == null ? BOTTOMSPACE : c1alpha);
-            bottomnorm.add(c1num == null ? "9999" : c1num + BOTTOMDIGITS.substring(0, 6 - c1num.length()));
-            bottomnorm.add(c2alpha == null ? BOTTOMSPACE : c2alpha);
-            bottomnorm.add(c2num == null ? "9999" : c2num + BOTTOMDIGITS.substring(0, 6 - c2num.length()));
-            bottomnorm.add(c3alpha == null ? BOTTOMSPACE : c3alpha);
-            bottomnorm.add(c3num == null ? "9999" : c3num + BOTTOMDIGITS.substring(0, 6 - c3num.length()));
-            bottomnorm.add(enorm);
-        }
-
+//        ArrayList<String> bottomnorm = new ArrayList<String>(10);
+//        if (rangeEnd) {
+//            bottomnorm.add(alpha + TOPALPHA.substring(0, 3 - alpha.length()));
+//            bottomnorm.add(bottomnum);
+//            bottomnorm.add(dec == null ? "9999" : dec + BOTTOMDIGITS.substring(0, 6 - dec.length()));
+//            bottomnorm.add(c1alpha == null ? BOTTOMSPACE : c1alpha);
+//            bottomnorm.add(c1num == null ? "9999" : c1num + BOTTOMDIGITS.substring(0, 6 - c1num.length()));
+//            bottomnorm.add(c2alpha == null ? BOTTOMSPACE : c2alpha);
+//            bottomnorm.add(c2num == null ? "9999" : c2num + BOTTOMDIGITS.substring(0, 6 - c2num.length()));
+//            bottomnorm.add(c3alpha == null ? BOTTOMSPACE : c3alpha);
+//            bottomnorm.add(c3num == null ? "9999" : c3num + BOTTOMDIGITS.substring(0, 6 - c3num.length()));
+//            bottomnorm.add(enorm);
+//        }
 
 
         // If we've got an alpha and nothing else, return it.
@@ -216,52 +222,55 @@ public class LCCallNumberNormalizer {
         }
 
         if (hasAlpha && !hasOther) {
-            if (hasExtra) {
+            if (hasExtra || !padded) {
 //                System.out.println(s + " has alpha, but no other, and an extra");
-                // Return identity
                 throw new MalformedCallNumberException();
             }
-            if (rangeEnd) {
-                if (padded) {
-                    return join(bottomnorm, JOIN);
-                }
-                else {
-                    return alpha + BOTTOMSPACE;
-                }
-            }
-            if (!padded) {
+//            if (rangeEnd) {
+//                if (padded) {
+//                    return join(bottomnorm, JOIN);
+//                }
+//                else {
+//                    return alpha + BOTTOMSPACE;
+//                }
+//            }
+//            if (!padded) {
 //                System.out.println(s + "has only alpha; returning " + alpha);
-                return alpha;
-            }
+//                return alpha;
         }
+//        }
 
         // If it's full-length already, just return it.
         if (extra != null) {
 //            System.out.println(s + " is already full-length; returning topnorm");
+//            return "FULL LENGTH ALREADY with enorm = \" + enorm";
             return join(topnorm, JOIN);
         }
 
-        // Remove 'extra'
-        topnorm.remove(9);
-        if (rangeEnd) {
-            bottomnorm.remove(9);
-        }
+        // Now we're gonna pop components off the array until we find one
+        // that isn't null.
+        // Remove 'extra' -- we don't care if that's null or not.
+        topnorm.remove(10);
+//        if (rangeEnd) {
+//            bottomnorm.remove(9);
+//        }
 
-        for (int i = 8; i >= 1; i--) {
+        for (int i = 9; i >= 1; i--) {
             String end = topnorm.remove(i).toString(); // pop it off
 
             if (origs.get(i) != null) {
-                if (rangeEnd) {
-                    end = join(bottomnorm.subList(i, 9), JOIN);
+//                if (rangeEnd) {
+//                    end = join(bottomnorm.subList(i, 9), JOIN);
+//                }
+//                else {
+                // get the original so we don't unnecssarily pad num or decimal
+                if (i > 1) {
+                    end = origs.get(i);
                 }
-                else {
-                    // get the original so we don't unnecssarily pad num or decimal
-                    if (i > 1) {
-                        end = origs.get(i);
-                    }
-                }
-                String rv = join(topnorm, JOIN) + JOIN + end;
+//                }
+                String rv = join(topnorm, JOIN) + JOIN + end + enorm;
 //                System.out.println("Standard return " + rv);
+//                return "AT THE VERY END with enorm = " + enorm + "AND extra = " + extra;
                 return rv;
 
             }
