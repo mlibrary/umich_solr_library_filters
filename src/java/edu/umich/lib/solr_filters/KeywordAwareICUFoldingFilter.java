@@ -9,6 +9,7 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.KeywordAttribute;
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +31,8 @@ public final class KeywordAwareICUFoldingFilter extends TokenFilter {
             .getLogger(ISBNNormalizerFilter.class);
 
     private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
+    private final PositionIncrementAttribute posIncrAtt = addAttribute(PositionIncrementAttribute.class);
+
     private final Normalizer2 normalizer;
     private final StringBuilder buffer = new StringBuilder();
 
@@ -69,14 +72,12 @@ public final class KeywordAwareICUFoldingFilter extends TokenFilter {
 
         String t = myTermAttribute.toString();
         if (keywordAttr.isKeyword()) {
-            LOGGER.info(t + " is keyword");
             return true;
         }
 
-        LOGGER.info(t + " is not a keyword");
-
         if (normalizer.quickCheck(termAtt) != Normalizer.YES) {
             buffer.setLength(0);
+            posIncrAtt.setPositionIncrement(0);
             NORMALIZER.normalize(termAtt, buffer);
             termAtt.setEmpty().append(buffer);
         }
