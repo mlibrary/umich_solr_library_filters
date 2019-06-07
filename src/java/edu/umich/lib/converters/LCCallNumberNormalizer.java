@@ -4,6 +4,9 @@
  */
 package edu.umich.lib.converters;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.regex.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,9 +31,13 @@ public class LCCallNumberNormalizer {
     public static final String BOTTOMDIGIT = "9";
     public static final String BOTTOMDIGITS = "999999999999999999999";
     private static Pattern lcpattern = Pattern.compile(
-        "^ \\s* (?:VIDEO-D)? (?:DVD-ROM)? (?:CD-ROM)? (?:TAPE-C)? \\s* ([A-Z]{1,3}) \\s* (?: (\\d{1,6}) (?:\\s*?\\.\\s*?(\\d{1,6}))? )? \\s* (?: \\.? \\s* ([A-Z]) \\s* ((?: \\d{1,6} (?:\\.\\s*?(\\d{1,6}))) | \\Z)? )? \\s* (?: \\.? \\s* ([A-Z]) \\s* (\\d{1,6} | \\Z)? )? \\s* (?: \\.? \\s* ([A-Z]) \\s* (\\d{1,6} | \\Z)? )? (\\s\\s*.+?)? \\s*$",
+        "^ \\s* (?:VIDEO-D)? (?:DVD-ROM)? (?:CD-ROM)? (?:TAPE-C)? \\s* ([A-Z]{1,3}) \\s* (?: (\\d{1,6}) (?:\\.(\\d{1,6}))? )? \\s* (?: \\.? \\s* ([A-Z]) \\s* ((?: \\d{1,6} (?:\\.(\\d{1,6}))) | \\Z)? )? \\s* (?: \\.? \\s* ([A-Z]) \\s* (\\d{1,6} | \\Z)? )? \\s* (?: \\.? \\s* ([A-Z]) \\s* (\\d{1,6} | \\Z)? )? (\\s\\s*.+?)? \\s*$",
         Pattern.COMMENTS);
-    private static Pattern longAlphaPattern = Pattern.compile("^[A-Z]{4,}.*$");
+    private static Pattern longAlphaPattern = Pattern.compile("^[A-Z]{4,}.*$")
+
+
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(LCCallNumberNormalizer.class);
 
     public static String join(List<String> s, String d) {
         StringBuffer rv = new StringBuffer("");
@@ -170,17 +177,27 @@ public class LCCallNumberNormalizer {
 
 
         ArrayList<String> topnorm = new ArrayList<String>(10);
-        topnorm.add(alpha + TOPALPHA.substring(0, 3 - alpha.length()));
-        topnorm.add(num);
-        topnorm.add(dec == null ? "0000" : dec + TOPDIGITS.substring(0, 6 - dec.length()));
-        topnorm.add(c1alpha == null ? TOPSPACE : c1alpha);
-        topnorm.add(c1num == null ? "0000" : c1num + TOPDIGITS.substring(0, 6 - c1num.length()));
-        topnorm.add(c2alpha == null ? TOPSPACE : c2alpha);
-        topnorm.add(c2num == null ? "0000" : c2num + TOPDIGITS.substring(0, 6 - c2num.length()));
-        topnorm.add(c3alpha == null ? TOPSPACE : c3alpha);
-        topnorm.add(c3num == null ? "0000" : c3num + TOPDIGITS.substring(0, 6 - c3num.length()));
-        topnorm.add(enorm);
+        try {
+            topnorm.add(alpha + TOPALPHA.substring(0, 3 - alpha.length()));
+            topnorm.add(num);
+            topnorm.add(dec == null ? "000000" : dec + TOPDIGITS.substring(0, 6 - dec.length()));
+            topnorm.add(c1alpha == null ? TOPSPACE : c1alpha);
+            topnorm.add(c1num == null ? "000000" : c1num + TOPDIGITS.substring(0, 6 - c1num.length()));
+            topnorm.add(c2alpha == null ? TOPSPACE : c2alpha);
+            topnorm.add(c2num == null ? "000000" : c2num + TOPDIGITS.substring(0, 6 - c2num.length()));
+            topnorm.add(c3alpha == null ? TOPSPACE : c3alpha);
+            topnorm.add(c3num == null ? "000000" : c3num + TOPDIGITS.substring(0, 6 - c3num.length()));
+            topnorm.add(enorm);
+        }
+        catch (java.lang.StringIndexOutOfBoundsException e) {
+            LOGGER.info("Original string is " + s);
+            LOGGER.info("dec is " + dec);
+            LOGGER.info("c1num is " + c1num);
+            LOGGER.info("c2num is " + c2num);
+            LOGGER.info("c3num is " + c3num);
 
+            throw e;
+        }
 
         //If we want a normalized, padded top, just return it
         if (padded && !rangeEnd) {
