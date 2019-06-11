@@ -30,12 +30,13 @@ public class LCCallNumberNormalizer {
 
 
     public static final int max_alpha_characters = 3;
+    public static final int max_initial_digits = 6;
     public static final int max_integer_digits = 5;
     public static final int max_fractional_digits = 5;
 
 
     // I *should* build this with the immediately-above constants, but, man
-    // regexp in java is ugly.
+    // regex in java is ugly.
     private static Pattern lcpattern = Pattern.compile(
             "^ \\s* (?:VIDEO-D)? (?:DVD-ROM)? (?:CD-ROM)? (?:TAPE-C)? \\s* " +
                     "([A-Z]{1,3}) \\s* " +
@@ -59,7 +60,7 @@ public class LCCallNumberNormalizer {
         Matcher m = lcpattern.matcher(s);
         return m.matches();
     }
-    
+
     public static String normalize(String s) throws MalformedCallNumberException {
         s = s.toUpperCase();
         Matcher m = lcpattern.matcher(s);
@@ -101,7 +102,7 @@ public class LCCallNumberNormalizer {
 
         ArrayList<String> normalized = new ArrayList<String>();
         push_if_not_null(normalized, (right_pad(alpha, max_alpha_characters, "@")));
-        push_if_not_null(normalized, (left_pad(num, max_integer_digits, "0")));
+        push_if_not_null(normalized, (left_pad(num, max_initial_digits, "0")));
         push_if_not_null(normalized, (right_pad(dec, max_fractional_digits, "0")));
 
         push_if_not_null(normalized, c1alpha);

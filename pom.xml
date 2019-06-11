@@ -6,7 +6,7 @@
 
     <groupId>groupId</groupId>
     <artifactId>umich_solr_library_filters</artifactId>
-    <version>1.5</version>
+    <version>1.6.1</version>
 
     <properties>
         <solr.version>6.6.6</solr.version>
