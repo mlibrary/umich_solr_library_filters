@@ -5,6 +5,7 @@
 package edu.umich.lib.solr_filters;
 
 import edu.umich.lib.converters.LCCallNumberNormalizer;
+import edu.umich.lib.converters.MalformedCallNumberException;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
@@ -22,17 +23,21 @@ public final class LCCallNoFilter extends TokenFilter {
     }
 
 	@Override
-	public boolean incrementToken() throws IOException {
+	public boolean incrementToken() throws IOException  {
 	    if (!input.incrementToken()) {
 	        return false;
 	    }
 	    String t = termAtt.toString().toUpperCase();
 	    if (t.length() != 0) {
-	        if (LCCallNumberNormalizer.match(t)) {
-		    	String normalized = LCCallNumberNormalizer.normalize(t);
-		        termAtt.setEmpty().append(normalized);
-		    }
+	    	try {
+				if (LCCallNumberNormalizer.match(t)) {
+					String normalized = LCCallNumberNormalizer.normalize(t);
+					termAtt.setEmpty().append(normalized);
+				}
+			} catch(MalformedCallNumberException e) {
+	        	termAtt.setEmpty().append(t.toUpperCase());
+			}
 	    }
 	    return true;
-	}
+    }
 }

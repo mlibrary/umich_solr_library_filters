@@ -24,7 +24,6 @@ public class KeywordAwareICUFoldingFilterFactory extends ICUFoldingFilterFactory
         return new KeywordAwareICUFoldingFilter(aTokenStream);
     }
 
-    @Override
     public AbstractAnalysisFactory getMultiTermComponent() {
         return this;
     }
