@@ -1,0 +1,9 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="RubyControlFlowConversionInspection" enabled="true" level="INFORMATION" enabled_by_default="true" />
+    <inspection_tool class="RubyConvertAllHashesInFileInspections" enabled="true" level="INFORMATION" enabled_by_default="true" />
+    <inspection_tool class="RubyExpressionInStringInspection" enabled="true" level="INFORMATION" enabled_by_default="true" />
+    <inspection_tool class="RubyNestedTernaryOperatorsInspection" enabled="true" level="SERVER PROBLEM" enabled_by_default="true" />
+  </profile>
+</component>

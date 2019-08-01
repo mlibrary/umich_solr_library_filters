@@ -6,7 +6,7 @@
 
     <groupId>groupId</groupId>
     <artifactId>umich_solr_library_filters</artifactId>
-    <version>1.5</version>
+    <version>1.8</version>
 
     <properties>
         <solr.version>6.6.6</solr.version>
@@ -36,7 +36,7 @@
         </dependencies>
 
         <build>
-            <finalName>lucene-umich-solr-filters-solr_v${solr.version}_umf_v${project.version}</finalName>
+            <finalName>lucene-umich-solr-filters-${project.version}-solr-${solr.version}</finalName>
             <sourceDirectory>src/java</sourceDirectory>
 
             <plugins>
