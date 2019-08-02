@@ -23,10 +23,10 @@ public class AnchoredSearchFilterTest {
         hm.put(1, pos1);
 
         ArrayList<String> expected = new ArrayList<>();
-        expected.add("Bill_Dueber_");
-        expected.add("Bill_dueber_");
-        expected.add("bill_Dueber_");
-        expected.add("bill_dueber_");
+        expected.add("Bill_Dueber");
+        expected.add("Bill_dueber");
+        expected.add("bill_Dueber");
+        expected.add("bill_dueber");
 
         AnchoredSearchFilter asf = new AnchoredSearchFilter(new StandardTokenizer());
 
