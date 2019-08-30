@@ -17,10 +17,10 @@ public class AnchoredSearchFilterTest {
         Map<Integer, List<String>> hm = new HashMap<>();
         String[] p1 = {"Bill", "bill"};
         String[] p2 = {"Dueber", "dueber"};
-        List<String> pos0 = Arrays.asList("Bill", "bill");
-        List<String> pos1 = Arrays.asList("Dueber", "dueber");
-        hm.put(0, pos0);
+        List<String> pos1 = Arrays.asList("Bill", "bill");
+        List<String> pos2 = Arrays.asList("Dueber", "dueber");
         hm.put(1, pos1);
+        hm.put(2, pos2);
 
         ArrayList<String> expected = new ArrayList<>();
         expected.add("Bill_Dueber");
@@ -30,7 +30,7 @@ public class AnchoredSearchFilterTest {
 
         AnchoredSearchFilter asf = new AnchoredSearchFilter(new StandardTokenizer());
 
-        assertEquals(expected, asf.joinedStrings(0, 1, hm));
+        assertEquals(expected, asf.joinedTokens(hm));
 
     }
 }

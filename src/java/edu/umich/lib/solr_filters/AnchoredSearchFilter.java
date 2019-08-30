@@ -5,12 +5,9 @@ import java.util.*;
 
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.tokenattributes.PositionLengthAttribute;
+import org.apache.lucene.analysis.tokenattributes.*;
 import org.apache.lucene.util.AttributeSource;
 
-import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
-import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,39 +25,56 @@ public class AnchoredSearchFilter extends TokenFilter {
     private final PositionIncrementAttribute posIncrAtt = addAttribute(PositionIncrementAttribute.class);
     private final OffsetAttribute offsetAttr = addAttribute(OffsetAttribute.class);
     private final PositionLengthAttribute posLengthAttr = addAttribute(PositionLengthAttribute.class);
+    private final KeywordAttribute keywordAttr = addAttribute(KeywordAttribute.class);
+
+
+    public static class TokenWithKeywordStatus {
+        String token;
+        Boolean isKeyword;
+
+        public TokenWithKeywordStatus(String tok, Boolean keyword) {
+            token = tok;
+            isKeyword = keyword;
+        }
+    }
 
     public static class TokenAndPosition {
         Integer tokenPosition = 0;
         String token;
+        Boolean isKeyword;
 
-        public TokenAndPosition(String tok, Integer pos) {
+        public TokenAndPosition(String tok, Integer pos, Boolean keyword) {
             tokenPosition = pos;
             token = tok;
+            isKeyword = keyword;
         }
     }
 
 
+    private List<TokenWithKeywordStatus> tokensWithKeywordStatus = null;
     private List<TokenAndPosition> tokensAndPositions = null;
     private List<String> tokens = null;
-    private Iterator<String> iterator = null;
+    private Iterator<TokenWithKeywordStatus> iterator = null;
     private AttributeSource.State finalState = null;
-    private Integer firstPosition = -1;
     private Integer lastPosition = -1;
 
     private State more_or_less_random_state = null;
     private Boolean alreadyOutputFirstToken = false;
-    private Map<Integer, List<String>> tokensByPosition = new HashMap<>();
+    private Map<Integer, List<String>> nonKeyWordTokensByPosition = new HashMap<>();
+    private Map<Integer, List<String>> keywordTokensByPosition = new HashMap<>();
 
+    private final Integer defaultIndexOfFirstToken = 1;
     private void reset_everything() {
+        tokensWithKeywordStatus = new ArrayList<>();
         tokensAndPositions = new ArrayList<>();
         tokens = new ArrayList<>();
         iterator = null;
         finalState = null;
-        firstPosition = -1;
         lastPosition = -1;
         more_or_less_random_state = null;
         alreadyOutputFirstToken = false;
-        tokensByPosition = new HashMap<>();
+        nonKeyWordTokensByPosition = new HashMap<>();
+        keywordTokensByPosition = new HashMap<>();
     }
 
     /**
@@ -83,7 +97,7 @@ public class AnchoredSearchFilter extends TokenFilter {
             input.reset();
         } else {
 //            iterator = cache.iterator();
-            iterator = tokens.iterator();
+            iterator = tokensWithKeywordStatus.iterator();
         }
     }
 
@@ -94,6 +108,7 @@ public class AnchoredSearchFilter extends TokenFilter {
     @Override
     public final boolean incrementToken() throws IOException {
         if (firstTime()) {
+            reset_everything();
             setUpCache();
         }
 
@@ -105,15 +120,16 @@ public class AnchoredSearchFilter extends TokenFilter {
 
         restoreState(more_or_less_random_state);
 
-        String tok = iterator.next();
+        TokenWithKeywordStatus tk = iterator.next();
+        String tok = tk.token;
         charTermAtt.resizeBuffer(tok.length());
         charTermAtt.setEmpty().append(tok);
         charTermAtt.setLength(tok.length());
         offsetAttr.setOffset(0, tok.length());
-        posLengthAttr.setPositionLength(lastPosition - firstPosition + 1);
+        posLengthAttr.setPositionLength(lastPosition - defaultIndexOfFirstToken + 1);
+        keywordAttr.setKeyword(tk.isKeyword);
 
-
-        LOGGER.debug("About to return " + charTermAtt.toString());
+        LOGGER.debug("About to return " + tok);
 
         if (alreadyOutputFirstToken) {
             posIncrAtt.setPositionIncrement(0);
@@ -128,62 +144,92 @@ public class AnchoredSearchFilter extends TokenFilter {
 
     @Override
     public final void end() {
-//        if (finalState != null) {
-//            restoreState(finalState);
-//        }
+        if (finalState != null) {
+            restoreState(finalState);
+        }
     }
 
-    public List<String> joinedStrings(Integer i, Integer maxKey, Map<Integer, List<String>> tokenMap) {
-
-        if (i.equals(maxKey)) {
-            return tokenMap.get(i);
+    public List<String> joinedTokens(Map<Integer, List<String>> map) {
+        List<Integer> keys = new ArrayList<>(map.keySet());
+        if (keys.isEmpty()) {
+            return new ArrayList<>();
         }
 
+        Collections.sort(keys);
+        Integer maxPosition = keys.get(keys.size() - 1);
+        lastPosition = maxPosition;
+        return joinedTokens(defaultIndexOfFirstToken, maxPosition, map);
+    }
+
+    public List<String> joinedTokens(Integer currentIndex, Integer maxKey, Map<Integer, List<String>> map) {
         List<String> acc = new ArrayList<>();
-        for (String tok : tokenMap.get(i)) {
-            for (String s : joinedStrings(i + 1, maxKey, tokenMap)) {
-                LOGGER.debug("Adding " + String.join("_", tok, s));
+
+        LOGGER.debug("Getting from " +  currentIndex.toString() +  " based on max of " + maxKey.toString());
+        if (map.isEmpty()) {
+            return acc;
+        }
+        if (currentIndex.equals(maxKey)) {
+            return map.get(currentIndex);
+        }
+
+        for (String tok : map.get(currentIndex)) {
+            for (String s : joinedTokens(currentIndex + 1, maxKey, map)) {
                 acc.add(String.join("_", tok, s));
             }
         }
-
         return acc;
     }
 
 
+    private void addTokenInfo(Map<Integer, List<String>> map, String token, Integer position) {
+        if (!map.containsKey(position)) {
+            map.put(position, new ArrayList<>());
+        }
+        map.get(position).add(token);
+    }
+
     private void setUpCache() throws IOException {
         reset_everything();
-        Integer currentPosition = -1;
+        Integer currentPosition = defaultIndexOfFirstToken - 1;
         while (input.incrementToken()) {
+            if (currentPosition == defaultIndexOfFirstToken - 1) {
+                more_or_less_random_state = captureState();
+            }
             String token = charTermAtt.toString();
             currentPosition = currentPosition + posIncrAtt.getPositionIncrement();
 
             LOGGER.debug("Token " + token + " at position " + currentPosition.toString());
-            tokensAndPositions.add(new TokenAndPosition(token, currentPosition));
+
+            if (keywordAttr.isKeyword()) {
+                addTokenInfo(keywordTokensByPosition, token, currentPosition);
+            } else {
+                addTokenInfo(nonKeyWordTokensByPosition, token, currentPosition);
+            }
         }
 
         // capture final state
         input.end();
         finalState = captureState();
-        more_or_less_random_state = finalState;
 
-        firstPosition = tokensAndPositions.get(0).tokenPosition;
-        lastPosition = tokensAndPositions.get(tokensAndPositions.size() - 1).tokenPosition;
 
-        for (TokenAndPosition s : tokensAndPositions) {
-            if (!tokensByPosition.containsKey(s.tokenPosition)) {
-                tokensByPosition.put(s.tokenPosition, new ArrayList<>());
-            }
-            tokensByPosition.get(s.tokenPosition).add(s.token);
+        for(String tok: joinedTokens(keywordTokensByPosition)) {
+            LOGGER.debug("Adding keyword token " + tok);
+            tokensWithKeywordStatus.add(new TokenWithKeywordStatus(tok, true));
         }
-        LOGGER.debug("First/last are " + firstPosition.toString() + " / " + lastPosition.toString());
 
-        tokens = joinedStrings(firstPosition, lastPosition, tokensByPosition);
-        iterator = tokens.iterator();
+        for(String tok: joinedTokens(nonKeyWordTokensByPosition)) {
+            LOGGER.debug("Adding nonKeyword token " + tok);
+            tokensWithKeywordStatus.add(new TokenWithKeywordStatus(tok, false));
+        }
+
+        LOGGER.debug("TWKS list has size " + tokensWithKeywordStatus.size());
+        iterator = tokensWithKeywordStatus.iterator();
+
+
     }
 
     private Boolean firstTime() {
-        return tokensAndPositions.isEmpty();
+        return tokensWithKeywordStatus.isEmpty();
     }
 
 }
