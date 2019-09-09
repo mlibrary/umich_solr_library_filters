@@ -9,7 +9,8 @@
     <version>1.9</version>
 
     <properties>
-        <solr.version>6.6.6</solr.version>
+      <solr.version>6.6.6</solr.version>
+      <icu.version>62.1</icu.version>
     </properties>
 
 
@@ -24,8 +25,23 @@
 	    <dependency>
     <groupId>org.apache.solr</groupId>
     <artifactId>solr-analysis-extras</artifactId>
-    <version>6.6.6</version>
-</dependency>
+    <version>${solr.version}</version>
+    <scope>compile</scope>
+	    </dependency>
+
+	    <dependency>
+	      <groupId>org.apache.lucene</groupId>
+	      <artifactId>lucene-analyzers-icu</artifactId>
+	      <version>${solr.version}</version>
+	      <scope>compile</scope>
+	    </dependency>
+
+	    <dependency>
+	      <groupId>com.ibm.icu</groupId>
+	      <artifactId>icu4j</artifactId>
+	      <version>${icu.version}</version>
+	      <scope>compile</scope>
+	    </dependency>
 
             <dependency>
                     <groupId>junit</groupId>
