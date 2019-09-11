@@ -126,16 +126,25 @@ public class AnchoredSearchFilter extends TokenFilter {
         charTermAtt.setEmpty().append(tok);
         charTermAtt.setLength(tok.length());
         offsetAttr.setOffset(0, tok.length());
-        posLengthAttr.setPositionLength(lastPosition - defaultIndexOfFirstToken + 1);
+
+        // Look out for weridness with tokens get eliminated and thus
+        // have the same position
+
+        int poslength =  lastPosition - defaultIndexOfFirstToken + 1;
+        if (poslength < 0) {
+            poslength = 0;
+        }
+
+        posLengthAttr.setPositionLength(poslength);
         keywordAttr.setKeyword(tk.isKeyword);
 
         LOGGER.debug("About to return " + tok);
 
-        if (alreadyOutputFirstToken) {
-            posIncrAtt.setPositionIncrement(0);
-        } else {
+        if (!alreadyOutputFirstToken) {
             posIncrAtt.setPositionIncrement(1);
             alreadyOutputFirstToken = true;
+        } else {
+            posIncrAtt.setPositionIncrement(0);
         }
 
         return true;
