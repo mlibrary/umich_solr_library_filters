@@ -2,7 +2,7 @@ package edu.umich.lib.solr_filters;
 
 import org.apache.lucene.analysis.util.TokenFilterFactory;
 import org.apache.lucene.analysis.TokenStream;
-import edu.umich.lib.solr_filters.LeftAnchorifyFilter;
+import edu.umich.lib.solr_filters.AnchoredSearchFilter;
 
 import java.util.Map;
 
@@ -10,7 +10,7 @@ import java.util.Map;
  * Munge the first token in the token stream (on query and index)
  * so any phrase match has to be anchored to the left.
  *
- * Factory for {@link LeftAnchorifyFilter}-s. When added to the analysis
+ * Factory for {@link AnchoredSearchFilter}-s. When added to the analysis
  * chain, it will cause phrase matches to the field to only match
  * if they start at the first token.
  *
@@ -27,14 +27,14 @@ import java.util.Map;
  *         &lt;/analyzer&gt;
  *     &lt;/fieldType&gt;
  */
-public class LeftAnchorifyFilterFactory extends TokenFilterFactory {
-  public LeftAnchorifyFilterFactory(Map<String, String> aMap) {
+public class AnchoredSearchFilterFactory extends TokenFilterFactory {
+  public AnchoredSearchFilterFactory(Map<String, String> aMap) {
       super(aMap);
   }
 
   @Override
-    public LeftAnchorifyFilter create(TokenStream aTokenStream) {
-      return new LeftAnchorifyFilter(aTokenStream);
+    public AnchoredSearchFilter create(TokenStream aTokenStream) {
+      return new AnchoredSearchFilter(aTokenStream);
   }
 
 }

@@ -28,7 +28,7 @@ public final class KeywordAwareICUFoldingFilter extends TokenFilter {
      */
 
     private static final Logger LOGGER = LoggerFactory
-            .getLogger(ISBNNormalizerFilter.class);
+            .getLogger(KeywordAwareICUFoldingFilter.class);
 
     private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
     private final PositionIncrementAttribute posIncrAtt = addAttribute(PositionIncrementAttribute.class);
@@ -60,8 +60,6 @@ public final class KeywordAwareICUFoldingFilter extends TokenFilter {
     public KeywordAwareICUFoldingFilter(TokenStream input, Normalizer2 normalizer) {
         super(input);
         this.normalizer = normalizer;
-        LOGGER.info("We're actually here");
-
     }
 
     @Override
