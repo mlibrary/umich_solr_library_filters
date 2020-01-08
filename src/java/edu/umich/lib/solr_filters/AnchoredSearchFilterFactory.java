@@ -2,8 +2,8 @@ package edu.umich.lib.solr_filters;
 
 import org.apache.lucene.analysis.util.TokenFilterFactory;
 import org.apache.lucene.analysis.TokenStream;
-import edu.umich.lib.solr_filters.AnchoredSearchFilter;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -30,6 +30,10 @@ import java.util.Map;
 public class AnchoredSearchFilterFactory extends TokenFilterFactory {
   public AnchoredSearchFilterFactory(Map<String, String> aMap) {
       super(aMap);
+  }
+
+  public AnchoredSearchFilterFactory() {
+    this(new HashMap<String, String>());
   }
 
   @Override

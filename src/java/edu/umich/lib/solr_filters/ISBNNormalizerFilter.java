@@ -1,6 +1,6 @@
 package edu.umich.lib.solr_filters;
 
-import edu.umich.lib.converters.ISBNNormalizer;
+import edu.umich.lib.converters.*;
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
