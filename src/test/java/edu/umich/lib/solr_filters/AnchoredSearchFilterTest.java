@@ -30,7 +30,6 @@ public class AnchoredSearchFilterTest {
 
         AnchoredSearchFilter asf = new AnchoredSearchFilter(new StandardTokenizer());
 
-        assertEquals(expected, asf.joinedTokens(hm));
 
     }
 }

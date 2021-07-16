@@ -19,226 +19,128 @@ import org.slf4j.LoggerFactory;
  */
 public class AnchoredSearchFilter extends TokenFilter {
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(AnchoredSearchFilter.class);
-    private final CharTermAttribute charTermAtt = addAttribute(CharTermAttribute.class);
-    private final PositionIncrementAttribute posIncrAtt = addAttribute(PositionIncrementAttribute.class);
-    private final OffsetAttribute offsetAttr = addAttribute(OffsetAttribute.class);
-    private final PositionLengthAttribute posLengthAttr = addAttribute(PositionLengthAttribute.class);
-    private final KeywordAttribute keywordAttr = addAttribute(KeywordAttribute.class);
+  private static final Logger LOGGER = LoggerFactory
+      .getLogger(AnchoredSearchFilter.class);
+  private final CharTermAttribute charTermAtt = addAttribute(CharTermAttribute.class);
+  private final PositionIncrementAttribute posIncrAtt = addAttribute(PositionIncrementAttribute.class);
+  private final OffsetAttribute offsetAttr = addAttribute(OffsetAttribute.class);
+  private final PositionLengthAttribute posLengthAttr = addAttribute(PositionLengthAttribute.class);
+  private final KeywordAttribute keywordAttr = addAttribute(KeywordAttribute.class);
 
 
-    public static class TokenWithKeywordStatus {
-        String token;
-        Boolean isKeyword;
+  private List<String> tokens = new ArrayList<String>();
 
-        public TokenWithKeywordStatus(String tok, Boolean keyword) {
-            token = tok;
-            isKeyword = keyword;
-        }
+  /**
+   * Create a new AnchoredSearchFilter around <code>input</code>. As with
+   * any normal TokenFilter, do <em>not</em> call reset on the input; this filter
+   * will do it normally.
+   */
+  AnchoredSearchFilter(TokenStream input) {
+    super(input);
+  }
+
+  /**
+   * Clear out the list of tokens and reset.
+   */
+  @Override
+  public void reset() throws IOException {
+    tokens.clear();
+    input.reset();
+  }
+
+
+  /**
+   * The first time called, it'll read and cache all tokens from the input,
+   * join them together with '_' and set that string as the first (and only)
+   * token.
+   */
+  @Override
+  public final boolean incrementToken() throws IOException {
+
+    if (!input.incrementToken() || !tokens.isEmpty()) {
+      tokens.clear();
+      return false;
     }
 
-    public static class TokenAndPosition {
-        Integer tokenPosition = 0;
-        String token;
-        Boolean isKeyword;
+    String t = charTermAtt.toString();
+    LOGGER.info("Keyword " + keywordAttr.isKeyword());
 
-        public TokenAndPosition(String tok, Integer pos, Boolean keyword) {
-            tokenPosition = pos;
-            token = tok;
-            isKeyword = keyword;
-        }
+    if (!keywordAttr.isKeyword() && t != null && t.length() != 0) {
+      tokens.add(t);
     }
-
-
-    private List<TokenWithKeywordStatus> tokensWithKeywordStatus = null;
-    private List<TokenAndPosition> tokensAndPositions = null;
-    private List<String> tokens = null;
-    private Iterator<TokenWithKeywordStatus> iterator = null;
-    private AttributeSource.State finalState = null;
-    private Integer lastPosition = -1;
-
-    private State more_or_less_random_state = null;
-    private Boolean alreadyOutputFirstToken = false;
-    private Map<Integer, List<String>> nonKeyWordTokensByPosition = new HashMap<>();
-    private Map<Integer, List<String>> keywordTokensByPosition = new HashMap<>();
-
-    private final Integer defaultIndexOfFirstToken = 1;
-    private void reset_everything() {
-        tokensWithKeywordStatus = new ArrayList<>();
-        tokensAndPositions = new ArrayList<>();
-        tokens = new ArrayList<>();
-        iterator = null;
-        finalState = null;
-        lastPosition = -1;
-        more_or_less_random_state = null;
-        alreadyOutputFirstToken = false;
-        nonKeyWordTokensByPosition = new HashMap<>();
-        keywordTokensByPosition = new HashMap<>();
+    while (input.incrementToken()) {
+      t = charTermAtt.toString();
+      if (!keywordAttr.isKeyword() && t != null && t.length() != 0) {
+        tokens.add(t);
+      }
     }
+    String joined = String.join("_", tokens);
+    LOGGER.info("Joined is " + joined);
+    charTermAtt.resizeBuffer(joined.length());
+    charTermAtt.setEmpty().append(joined);
 
-    /**
-     * Create a new AnchoredSearchFilter around <code>input</code>. As with
-     * any normal TokenFilter, do <em>not</em> call reset on the input; this filter
-     * will do it normally.
-     */
-    AnchoredSearchFilter(TokenStream input) {
-        super(input);
-        reset_everything();
-    }
+    offsetAttr.setOffset(0, joined.length());
 
-    /**
-     * Propagates reset if incrementToken has not yet been called. Otherwise
-     * it rewinds the iterator to the beginning of the cached list.
-     */
-    @Override
-    public void reset() throws IOException {
-        if (firstTime()) {//first time
-            input.reset();
-        } else {
-//            iterator = cache.iterator();
-            iterator = tokensWithKeywordStatus.iterator();
-        }
-    }
+    posLengthAttr.setPositionLength(1);
+    posIncrAtt.setPositionIncrement(0);
 
-
-    /**
-     * The first time called, it'll read and cache all tokens from the input.
-     */
-    @Override
-    public final boolean incrementToken() throws IOException {
-        if (firstTime()) {
-            reset_everything();
-            setUpCache();
-        }
-
-        if (!iterator.hasNext()) {
-            // the cache is exhausted, return false
-            reset_everything();
-            return false;
-        }
-
-        restoreState(more_or_less_random_state);
-
-        TokenWithKeywordStatus tk = iterator.next();
-        String tok = tk.token;
-        charTermAtt.resizeBuffer(tok.length());
-        charTermAtt.setEmpty().append(tok);
-        charTermAtt.setLength(tok.length());
-        offsetAttr.setOffset(0, tok.length());
-
-        // Look out for weridness with tokens get eliminated and thus
-        // have the same position
-
-        int poslength =  lastPosition - defaultIndexOfFirstToken + 1;
-        if (poslength < 0) {
-            poslength = 0;
-        }
-
-        posLengthAttr.setPositionLength(poslength);
-        keywordAttr.setKeyword(tk.isKeyword);
-
-        LOGGER.debug("About to return " + tok);
-
-        if (!alreadyOutputFirstToken) {
-            posIncrAtt.setPositionIncrement(1);
-            alreadyOutputFirstToken = true;
-        } else {
-            posIncrAtt.setPositionIncrement(0);
-        }
-
-        return true;
-    }
-
-
-    @Override
-    public final void end() {
-        if (finalState != null) {
-            restoreState(finalState);
-        }
-    }
-
-    public List<String> joinedTokens(Map<Integer, List<String>> map) {
-        List<Integer> keys = new ArrayList<>(map.keySet());
-        if (keys.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        Collections.sort(keys);
-        Integer maxPosition = keys.get(keys.size() - 1);
-        lastPosition = maxPosition;
-        return joinedTokens(defaultIndexOfFirstToken, maxPosition, map);
-    }
-
-    public List<String> joinedTokens(Integer currentIndex, Integer maxKey, Map<Integer, List<String>> map) {
-        List<String> acc = new ArrayList<>();
-
-        LOGGER.debug("Getting from " +  currentIndex.toString() +  " based on max of " + maxKey.toString());
-        if (map.isEmpty()) {
-            return acc;
-        }
-        if (currentIndex.equals(maxKey)) {
-            return map.get(currentIndex);
-        }
-
-        for (String tok : map.get(currentIndex)) {
-            for (String s : joinedTokens(currentIndex + 1, maxKey, map)) {
-                acc.add(String.join("_", tok, s));
-            }
-        }
-        return acc;
-    }
-
-
-    private void addTokenInfo(Map<Integer, List<String>> map, String token, Integer position) {
-        if (!map.containsKey(position)) {
-            map.put(position, new ArrayList<>());
-        }
-        map.get(position).add(token);
-    }
-
-    private void setUpCache() throws IOException {
-        reset_everything();
-        Integer currentPosition = defaultIndexOfFirstToken - 1;
-        while (input.incrementToken()) {
-            if (currentPosition == defaultIndexOfFirstToken - 1) {
-                more_or_less_random_state = captureState();
-            }
-            String token = charTermAtt.toString();
-            currentPosition = currentPosition + posIncrAtt.getPositionIncrement();
-
-            LOGGER.debug("Token " + token + " at position " + currentPosition.toString());
-
-            if (keywordAttr.isKeyword()) {
-                addTokenInfo(keywordTokensByPosition, token, currentPosition);
-            } else {
-                addTokenInfo(nonKeyWordTokensByPosition, token, currentPosition);
-            }
-        }
-
-        // capture final state
-        input.end();
-        finalState = captureState();
-
-
-        for(String tok: joinedTokens(keywordTokensByPosition)) {
-            LOGGER.debug("Adding keyword token " + tok);
-            tokensWithKeywordStatus.add(new TokenWithKeywordStatus(tok, true));
-        }
-
-        for(String tok: joinedTokens(nonKeyWordTokensByPosition)) {
-            LOGGER.debug("Adding nonKeyword token " + tok);
-            tokensWithKeywordStatus.add(new TokenWithKeywordStatus(tok, false));
-        }
-
-        LOGGER.debug("TWKS list has size " + tokensWithKeywordStatus.size());
-        iterator = tokensWithKeywordStatus.iterator();
-
-
-    }
-
-    private Boolean firstTime() {
-        return tokensWithKeywordStatus.isEmpty();
-    }
-
+    return true;
+  }
 }
+//    CharTermAttribute first_char_attribute = charTermAtt;
+//    String initial_string = first_char_attribute.toString();
+//    OffsetAttribute first_offset_attribute = offsetAttr;
+//    PositionIncrementAttribute first_pos_attribute = posIncrAtt;
+//    PositionLengthAttribute first_pos_length = posLengthAttr;
+//
+//    /* Did we get nothing? Return false */
+//    if ((initial_string == null) || (initial_string.length() == 0)) {
+//      return false;
+//    }
+//
+//
+//        /* On our first trip through, gather all the
+//           tokens into a single array and set all the
+//           tokens as empty.
+//
+//           We're also skipping the keywords. Smart? I don't know.
+//         */
+//
+//    tokens.add(initial_string);
+//
+//    while (input.incrementToken()) {
+//      String t = charTermAtt.toString();
+//      charTermAtt.setEmpty();
+//      if (!keywordAttr.isKeyword() && t != null && t.length() != 0) {
+//        tokens.add(t);
+//      }
+//    }
+//
+//        /* Now we need to set the first charterm to hold the
+//           joined set of all non-keyword tokens.
+//         */
+//    input.reset();
+//    String joined = String.join("_", tokens);
+//
+//    LOGGER.info("Joined is " + joined);
+//    LOGGER.info("First char attribute is " + first_char_attribute.toString());
+//    LOGGER.info("Current char attribute is " + charTermAtt.toString());
+//    charTermAtt.resizeBuffer(joined.length());
+//    charTermAtt.setEmpty().append(joined);
+//
+//    offsetAttr.setOffset(0, joined.length());
+//
+//    posLengthAttr.setPositionLength(1);
+//    posIncrAtt.setPositionIncrement(1);
+//
+//    LOGGER.info("Current char attribute is " + charTermAtt.toString());
+//
+//
+//    while (input.incrementToken()) {
+//      charTermAtt.setEmpty();
+//    }
+//
+////    return true;
+//  }
+//}
+
