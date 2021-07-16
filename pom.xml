@@ -6,11 +6,11 @@
 
     <groupId>groupId</groupId>
     <artifactId>umich_solr_library_filters</artifactId>
-    <version>2.0</version>
+    <version>2.1</version>
 
     <properties>
-      <solr.version>8.2.0</solr.version>
-      <icu.version>62.1</icu.version>
+      <solr.version>8.8.2</solr.version>
+      <icu.version>69.1</icu.version>
     </properties>
 
 
