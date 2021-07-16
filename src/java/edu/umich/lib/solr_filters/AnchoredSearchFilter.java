@@ -63,11 +63,10 @@ public class AnchoredSearchFilter extends TokenFilter {
     }
 
     String t = charTermAtt.toString();
-    LOGGER.info("Keyword " + keywordAttr.isKeyword());
-
     if (!keywordAttr.isKeyword() && t != null && t.length() != 0) {
       tokens.add(t);
     }
+    input.end();
     while (input.incrementToken()) {
       t = charTermAtt.toString();
       if (!keywordAttr.isKeyword() && t != null && t.length() != 0) {

@@ -39,6 +39,7 @@ public class LeftAnchoredSearchFilter extends TokenFilter {
   @Override
   public final boolean incrementToken() throws IOException {
     if (!input.incrementToken()) {
+      current_position = 0;
       return false;
     }
 
