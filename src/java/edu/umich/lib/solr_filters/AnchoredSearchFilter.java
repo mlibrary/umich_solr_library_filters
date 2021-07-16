@@ -75,14 +75,13 @@ public class AnchoredSearchFilter extends TokenFilter {
       }
     }
     String joined = String.join("_", tokens);
-    LOGGER.info("Joined is " + joined);
     charTermAtt.resizeBuffer(joined.length());
     charTermAtt.setEmpty().append(joined);
 
     offsetAttr.setOffset(0, joined.length());
 
     posLengthAttr.setPositionLength(1);
-    posIncrAtt.setPositionIncrement(0);
+    posIncrAtt.setPositionIncrement(1);
 
     return true;
   }
