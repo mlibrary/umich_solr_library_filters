@@ -44,8 +44,8 @@ public class AnchoredSearchFilter extends TokenFilter {
    */
   @Override
   public void reset() throws IOException {
+    super.reset();
     tokens.clear();
-    input.reset();
   }
 
 
@@ -81,6 +81,7 @@ public class AnchoredSearchFilter extends TokenFilter {
 
     posLengthAttr.setPositionLength(1);
     posIncrAtt.setPositionIncrement(1);
+
 
     return true;
   }
