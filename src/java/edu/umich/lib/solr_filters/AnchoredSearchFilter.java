@@ -11,6 +11,15 @@ import org.apache.lucene.util.AttributeSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * **************************************************
+ * ***  DEPRECATED
+ * **************************************************
+ *
+ * Use FullyAnchoredSearchFilter instead for much betterness.
+ */
+
+
 
 /**
  * Sigh. Basically just a copy of CachingTokenFilter,  because once again

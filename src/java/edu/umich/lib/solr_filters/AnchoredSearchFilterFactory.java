@@ -33,8 +33,8 @@ public class AnchoredSearchFilterFactory extends TokenFilterFactory {
   }
 
   @Override
-    public AnchoredSearchFilter create(TokenStream aTokenStream) {
-      return new AnchoredSearchFilter(aTokenStream);
+    public FullyAnchoredSearchFilter create(TokenStream aTokenStream) {
+      return new FullyAnchoredSearchFilter(aTokenStream);
   }
 
 }
