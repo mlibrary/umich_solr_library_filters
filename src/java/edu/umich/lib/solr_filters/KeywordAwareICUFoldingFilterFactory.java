@@ -2,7 +2,7 @@ package edu.umich.lib.solr_filters;
 
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.icu.ICUFoldingFilterFactory;
-import org.apache.lucene.analysis.util.AbstractAnalysisFactory;
+import org.apache.lucene.analysis.AbstractAnalysisFactory;
 import java.util.Map;
 
 /**

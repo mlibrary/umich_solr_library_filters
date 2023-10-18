@@ -1,6 +1,6 @@
 package edu.umich.lib.solr_filters;
 
-import org.apache.lucene.analysis.util.TokenFilterFactory;
+import org.apache.lucene.analysis.TokenFilterFactory;
 import org.apache.lucene.analysis.TokenStream;
 import edu.umich.lib.solr_filters.AnchoredSearchFilter;
 

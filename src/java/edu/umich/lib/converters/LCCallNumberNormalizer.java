@@ -16,7 +16,7 @@ import java.util.ArrayList;
  */
 public class LCCallNumberNormalizer {
 
-    public static final Long MINNUM = new Long(Long.MIN_VALUE);
+    public static final Long MINNUM = Long.MIN_VALUE;
     public static final String JOIN = "";
     public static final String TOPALPHA = "@@@@";
     public static final String TOPSPACES = "@@@@@@@@@@";
