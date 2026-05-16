@@ -15,6 +15,12 @@ import java.io.IOException;
  *
  * @author dueberb
  */
+/**
+ * Solr/Lucene token filter that normalises LC call numbers.
+ *
+ * @deprecated Use the replacement filter from the solr_anchored_search project.
+ */
+@Deprecated
 public final class LCCallNoFilter extends TokenFilter {
 	private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
 

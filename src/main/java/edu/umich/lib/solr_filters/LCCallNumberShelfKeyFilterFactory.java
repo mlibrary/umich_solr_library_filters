@@ -6,12 +6,11 @@ import org.apache.lucene.analysis.TokenFilterFactory;
 import java.util.Map;
 
 /**
- * Created with IntelliJ IDEA.
- * User: dueberb
- * Date: 1/30/15
- * Time: 2:25 PM
- * To change this template use File | Settings | File Templates.
+ * Factory for {@link LCCallNumberShelfKeyFilter}.
+ *
+ * @deprecated This factory is deprecated and will be removed in a future release.
  */
+@Deprecated
 public class LCCallNumberShelfKeyFilterFactory extends TokenFilterFactory {
     public static final String NAME = "lcCallNumberShelfKey";
 

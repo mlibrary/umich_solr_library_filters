@@ -16,7 +16,7 @@ import java.io.IOException;
  * Time: 3:14 PM
  * To change this template use File | Settings | File Templates.
  */
-public class ISBNNormalizerFilter extends TokenFilter {
+public final class ISBNNormalizerFilter extends TokenFilter {
     /**
      * Logger used to log warnings.
      */
@@ -56,8 +56,8 @@ public class ISBNNormalizerFilter extends TokenFilter {
 
         if (t != null && t.length() != 0) {
             try {
-//                String normalized = ISBNNormalizer.normalize(t);
-                myTermAttribute.setEmpty().append(ISBNNormalizer.normalize(t));
+                String normalized = ISBNNormalizer.normalize(t);
+                myTermAttribute.setEmpty().append(normalized);
             } catch (IllegalArgumentException details) {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug(details.getMessage(), details);

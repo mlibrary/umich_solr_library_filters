@@ -12,8 +12,12 @@ import java.util.ArrayList;
 
 
 /**
+ * Normalizes LC call numbers for sort/browse purposes.
+ *
+ * @deprecated This class is deprecated and will be removed in a future release.
  * @author dueberb
  */
+@Deprecated
 public class LCCallNumberNormalizer {
 
     public static final Long MINNUM = Long.MIN_VALUE;

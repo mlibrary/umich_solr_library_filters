@@ -16,7 +16,13 @@ import java.io.IOException;
  * Time: 2:25 PM
  * To change this template use File | Settings | File Templates.
  */
-public class LCCallNumberShelfKeyFilter extends TokenFilter {
+/**
+ * Solr/Lucene token filter that converts LC call numbers to shelf keys.
+ *
+ * @deprecated This filter is deprecated and will be removed in a future release.
+ */
+@Deprecated
+public final class LCCallNumberShelfKeyFilter extends TokenFilter {
     /**
      * Logger used to log warnings.
      */

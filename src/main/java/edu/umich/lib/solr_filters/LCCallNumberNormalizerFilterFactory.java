@@ -9,9 +9,12 @@ import org.apache.lucene.analysis.TokenFilterFactory;
 import org.apache.lucene.analysis.TokenStream;
 
 /**
+ * Factory for {@link LCCallNoFilter}.
  *
+ * @deprecated This factory is deprecated and will be removed in a future release.
  * @author dueberb
  */
+@Deprecated
 public class LCCallNumberNormalizerFilterFactory extends TokenFilterFactory {
 
     public static final String NAME = "lcCallNumberNormalizer";

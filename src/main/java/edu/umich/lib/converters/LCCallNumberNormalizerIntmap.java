@@ -6,6 +6,12 @@ package edu.umich.lib.converters;
 
 import java.util.HashMap;
 
+/**
+ * Integer map used by {@link LCCallNumberNormalizer}.
+ *
+ * @deprecated This class is deprecated and will be removed in a future release.
+ */
+@Deprecated
 public class LCCallNumberNormalizerIntmap  extends HashMap<String,String> {
 
     private static LCCallNumberNormalizerIntmap intmap = null;
