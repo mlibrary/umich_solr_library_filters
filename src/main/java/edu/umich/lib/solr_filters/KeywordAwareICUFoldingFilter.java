@@ -4,7 +4,6 @@ import com.ibm.icu.text.Normalizer;
 import org.apache.lucene.analysis.TokenStream;
 import com.ibm.icu.text.Normalizer2;
 import org.apache.lucene.analysis.icu.ICUFoldingFilter;
-import org.apache.lucene.analysis.icu.ICUNormalizer2Filter;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.KeywordAttribute;
 import org.apache.lucene.analysis.TokenFilter;
@@ -36,11 +35,12 @@ public final class KeywordAwareICUFoldingFilter extends TokenFilter {
     private final Normalizer2 normalizer;
     private final StringBuilder buffer = new StringBuilder();
 
-    public static final Normalizer2 NORMALIZER = Normalizer2.getInstance(
-            // TODO: if the wrong version of the ICU jar is used, loading these data files may give a strange error.
-            // maybe add an explicit check? http://icu-project.org/apiref/icu4j/com/ibm/icu/util/VersionInfo.html
-            ICUFoldingFilter.class.getResourceAsStream("utr30.nrm"),
-            "utr30", Normalizer2.Mode.COMPOSE);
+    /**
+     * Delegates to {@link ICUFoldingFilter#NORMALIZER} so that any future changes to the
+     * underlying UTR#30 data file in the Lucene ICU jar are automatically picked up,
+     * without needing to load the resource stream directly.
+     */
+    public static final Normalizer2 NORMALIZER = ICUFoldingFilter.NORMALIZER;
 
     /**
      * Need to figure out if it's a keyword or not...
