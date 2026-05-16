@@ -10,41 +10,36 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 /**
- * Created with IntelliJ IDEA.
- * User: dueberb
- * Date: 1/30/15
- * Time: 3:14 PM
- * To change this template use File | Settings | File Templates.
+ * A Lucene {@link TokenFilter} that normalizes ISBN tokens to ISBN-13 format.
+ *
+ * <p>Each token is passed to {@link ISBNNormalizer#normalize(String)}, which extracts
+ * and converts the ISBN to a canonical 13-digit form. Tokens that do not contain a
+ * recognizable ISBN are passed through unchanged.
  */
 public final class ISBNNormalizerFilter extends TokenFilter {
-    /**
-     * Logger used to log warnings.
-     */
+
     private static final Logger LOGGER = LoggerFactory
             .getLogger(ISBNNormalizerFilter.class);
 
-    /**
-     * The filter term that is a result of the conversion.
-     */
-    private final CharTermAttribute myTermAttribute =
+    private final CharTermAttribute termAttribute =
             addAttribute(CharTermAttribute.class);
 
     /**
-     * A Solr filter that parses ISO-639-1 and ISO-639-2 codes into English text
-     * that can be used as a facet.
+     * Creates a new {@code ISBNNormalizerFilter} wrapping the given token stream.
      *
-     * @param aStream A {@link TokenStream} that parses streams with
-     *                ISO-639-1 and ISO-639-2 codes
+     * @param input the upstream {@link TokenStream}
      */
-    public ISBNNormalizerFilter(TokenStream aStream) {
-        super(aStream);
+    public ISBNNormalizerFilter(TokenStream input) {
+        super(input);
     }
 
     /**
-     * Increments and processes tokens in the ISO-639 code stream.
+     * Advances to the next token and normalizes it to ISBN-13 if possible.
      *
-     * @return True if a value is still available for processing in the token
-     *         stream; otherwise, false
+     * <p>If the token does not contain a recognizable ISBN, it is passed through
+     * unchanged. Normalization failures are logged at DEBUG level.
+     *
+     * @return {@code true} if a token is available; {@code false} at end of stream
      */
     @Override
     public boolean incrementToken() throws IOException {
@@ -52,21 +47,17 @@ public final class ISBNNormalizerFilter extends TokenFilter {
             return false;
         }
 
-        String t = myTermAttribute.toString();
+        String t = termAttribute.toString();
 
-        if (t != null && t.length() != 0) {
+        if (!t.isEmpty()) {
             try {
                 String normalized = ISBNNormalizer.normalize(t);
-                myTermAttribute.setEmpty().append(normalized);
+                termAttribute.setEmpty().append(normalized);
             } catch (IllegalArgumentException details) {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug(details.getMessage(), details);
-                }
+                LOGGER.debug("Could not normalize ISBN token '{}': {}", t, details.getMessage());
             }
         }
 
         return true;
     }
-
-
 }

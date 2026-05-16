@@ -3,56 +3,66 @@ package edu.umich.lib.converters;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
 /**
- * Created with IntelliJ IDEA.
- * User: dueberb
- * Date: 1/30/15
- * Time: 10:14 AM
- * To change this template use File | Settings | File Templates.
+ * Normalizes Library of Congress Control Numbers (LCCNs) to canonical form as defined
+ * by the <a href="http://www.loc.gov/marc/lccn-namespace.html#syntax">LC LCCN namespace
+ * syntax</a>.
+ *
+ * <p>Normalization steps:
+ * <ol>
+ *   <li>Remove all whitespace and lowercase the string.</li>
+ *   <li>Strip everything from the first {@code /} onward (revision qualifiers).</li>
+ *   <li>If the result matches the LCCN pattern (optional alphabetic prefix followed by
+ *       an optional hyphen and digit serial), zero-pad the serial to six digits.</li>
+ *   <li>Return the prefix + padded serial, or just the prefix if no hyphen was present.</li>
+ * </ol>
  */
-
 public class LCCNNormalizer {
 
-    // Normalization patterns from http://www.loc.gov/marc/lccn-namespace.html#syntax
-    public static final Pattern trailingslashpattern = Pattern.compile("^(.*?)/.*$");
-    public static final Pattern lccndashpattern = Pattern.compile("^(\\w+)(?:-(\\d+))?.*$");
+    /** Strips everything from the first slash onward (e.g. {@code /AC/r95} qualifiers). */
+    private static final Pattern TRAILING_SLASH_PATTERN = Pattern.compile("^(.*?)/.*$");
 
+    /**
+     * Matches the LCCN structure: an optional alphabetic prefix followed by optional
+     * {@code -digits}. Captures (1) the prefix and (2) the post-hyphen digits.
+     */
+    private static final Pattern LCCN_DASH_PATTERN = Pattern.compile("^(\\w+)(?:-(\\d+))?.*$");
+
+    /**
+     * Normalizes a raw LCCN string to canonical form.
+     *
+     * @param raw a raw LCCN string (may contain whitespace, hyphens, slash qualifiers)
+     * @return the normalized LCCN, or the cleaned input as-is if it is not a recognizable LCCN
+     */
     public static String normalize(String raw) {
 
-        // First, ditch all the spaces and lowercase
+        // Remove all whitespace and lowercase
         raw = raw.replaceAll("\\s+", "").toLowerCase();
 
-        // Lose everything after a slash
-        Matcher m = trailingslashpattern.matcher(raw);
+        // Strip everything from the first slash onward
+        Matcher m = TRAILING_SLASH_PATTERN.matcher(raw);
         if (m.matches()) {
             raw = m.group(1);
         }
 
-        // See if it's even viable. If not, return as-is
-        m = lccndashpattern.matcher(raw);
-        if (!(m.matches())) {
+        // Check viability; return as-is if not a recognizable LCCN structure
+        m = LCCN_DASH_PATTERN.matcher(raw);
+        if (!m.matches()) {
             return raw;
         }
 
-        // Otherwise, build it up.
         String prefix = m.group(1);
         String postHyphenDigits = m.group(2);
 
-        // If there wasn't a hyphen, just return the prefix
-        if (postHyphenDigits == null || postHyphenDigits.length() == 0) {
+        // No hyphen present — return the prefix alone
+        if (postHyphenDigits == null || postHyphenDigits.isEmpty()) {
             return prefix;
         }
 
-        // There *were* digits after the hyphen; we may need to build
-        // them out to six digits (zero-padded on the left)
-
+        // Zero-pad the serial to six digits if necessary
         if (postHyphenDigits.length() < 6) {
             postHyphenDigits = String.format("%06d", Integer.parseInt(postHyphenDigits));
         }
         return prefix + postHyphenDigits;
-
     }
-
-
 }
