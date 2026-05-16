@@ -1,0 +1,5 @@
+edu.umich.lib.solr_filters.LCCNNormalizerFilterFactory
+edu.umich.lib.solr_filters.ISBNNormalizerFilterFactory
+edu.umich.lib.solr_filters.KeywordAwareICUFoldingFilterFactory
+edu.umich.lib.solr_filters.LCCallNumberShelfKeyFilterFactory
+edu.umich.lib.solr_filters.LCCallNumberNormalizerFilterFactory

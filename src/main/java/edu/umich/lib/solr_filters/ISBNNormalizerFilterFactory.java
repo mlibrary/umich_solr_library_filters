@@ -1,7 +1,7 @@
 package edu.umich.lib.solr_filters;
 
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.util.TokenFilterFactory;
+import org.apache.lucene.analysis.TokenFilterFactory;
 
 import java.util.Map;
 
@@ -13,6 +13,13 @@ import java.util.Map;
  * To change this template use File | Settings | File Templates.
  */
 public class ISBNNormalizerFilterFactory extends TokenFilterFactory {
+    public static final String NAME = "isbnNormalizer";
+
+    /** SPI no-arg constructor — do not use directly. */
+    public ISBNNormalizerFilterFactory() {
+        throw new UnsupportedOperationException("NAME");
+    }
+
     public ISBNNormalizerFilterFactory(Map<String, String> aMap) {
         super(aMap);
     }

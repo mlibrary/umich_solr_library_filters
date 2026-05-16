@@ -2,7 +2,6 @@ package edu.umich.lib.solr_filters;
 
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.icu.ICUFoldingFilterFactory;
-import org.apache.lucene.analysis.util.AbstractAnalysisFactory;
 import java.util.Map;
 
 /**
@@ -13,6 +12,13 @@ import java.util.Map;
  * To change this template use File | Settings | File Templates.
  */
 public class KeywordAwareICUFoldingFilterFactory extends ICUFoldingFilterFactory {
+    public static final String NAME = "keywordAwareICUFolding";
+
+    /** SPI no-arg constructor — do not use directly. */
+    public KeywordAwareICUFoldingFilterFactory() {
+        throw new UnsupportedOperationException("NAME");
+    }
+
     public KeywordAwareICUFoldingFilterFactory(Map<String, String> aMap) {
         super(aMap);
     }
