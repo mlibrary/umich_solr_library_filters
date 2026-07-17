@@ -1,10 +1,12 @@
+-----
+
 # DEPRECATED
 
 This code doesn't work with anything past Solr 8, and won't be receiving any update.
 
 The new approach is at https://github.com/mlibrary/umich-lib-solr-extensions
 
-
+-----
 
 
 # umich_solr_library_filters
