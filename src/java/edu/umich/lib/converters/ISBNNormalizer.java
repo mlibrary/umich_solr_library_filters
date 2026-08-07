@@ -86,7 +86,7 @@ public class ISBNNormalizer {
 
         int[] digits = new int[12];
         for (int i = 0; i < 12; i++) {
-            digits[i] = new Integer(longisbn.substring(i, i + 1));
+            digits[i] = Integer.valueOf(longisbn.substring(i, i + 1));
         }
 
         Integer sum = 0;
